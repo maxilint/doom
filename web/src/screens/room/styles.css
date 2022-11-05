@@ -27,3 +27,8 @@ video {
   box-sizing: border-box;
   padding: 5px;
 }
+
+.record-button-container {
+  position: absolute;
+  bottom: 50px;
+}

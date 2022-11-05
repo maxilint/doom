@@ -22,6 +22,7 @@ databases2
 keystore
 keystore2
 my-proxy-cert.cert
+.history
 
 **/.DS_Store
 .DS_Store

@@ -10,6 +10,7 @@ import {
 } from '../../webrtc/peer'
 import Container from '../../components/Container'
 import Back from '../../components/Back'
+import Button from '../../components/Button'
 import Error from '../../components/Error'
 import { getMedia, formatIncomingSignal } from '../../utils/helpers'
 import './styles.css'
@@ -161,6 +162,9 @@ export default function Room() {
   return (
     <Container>
       <Back onClick={cleanUp} />
+      <div className="record-button-container">
+        <Button onClick={() => {}}>Record</Button>
+      </div>
       <div className="video-container">
         <div className="video">
           <video muted ref={userVideo} autoPlay playsInline />
