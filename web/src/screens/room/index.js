@@ -1,4 +1,6 @@
 import React, { useEffect, useRef, useState, useContext } from 'react'
+// const { ipcRenderer } = window.require('electron')
+// const { desktopCapturer } = window.require('electron')
 import { useHistory, useParams } from 'react-router-dom'
 import UserContext from '../../context/user'
 import { getClient } from '../../zomes'
@@ -30,6 +32,12 @@ const Video = ({ peer }) => {
   )
 }
 
+let recordStream = null
+let recordData = []
+let mediaRecorder = null
+
+let recordObject = null
+
 export default function Room() {
   const history = useHistory()
   const params = useParams()
@@ -44,6 +52,90 @@ export default function Room() {
   const [peers, setPeers] = useState([])
   const [signal, setSignal] = useState(null)
   const [loading, setLoading] = useState(true)
+  const [isRecording, setIsRecording] = useState(false)
+
+  // ipcRenderer.on('SET_SOURCE', async (event, sourceId) => {
+  //   try {
+  //     const stream = await navigator.mediaDevices.getUserMedia({
+  //       audio: false,
+  //       video: {
+  //         mandatory: {
+  //           chromeMediaSource: 'desktop',
+  //           chromeMediaSourceId: sourceId,
+  //           minWidth: 1280,
+  //           maxWidth: 1280,
+  //           minHeight: 720,
+  //           maxHeight: 720,
+  //         },
+  //       },
+  //     })
+  //     handleStream(stream)
+  //   } catch (e) {
+  //     handleError(e)
+  //   }
+  // })
+
+  // function handleStream(stream) {
+  //   const video = document.querySelector('video')
+  //   video.srcObject = stream
+  //   video.onloadedmetadata = (e) => video.play()
+  // }
+
+  // function handleError(e) {
+  //   console.log(e)
+  // }
+
+  async function recordHandler() {
+    // let sourceId = null
+    // desktopCapturer
+    //   .getSources({ types: ['window', 'screen'] })
+    //   .then(async (sources) => {
+    //     for (const source of sources) {
+    //       console.log(source)
+    //       if (source.name === 'Doom') {
+    //         console.log(`source id: ${source.id}`)
+    //         sourceId = source.id
+    //         return
+    //       }
+    //     }
+    //   })
+    if (isRecording) {
+      mediaRecorder.stop()
+      setIsRecording(false)
+      // stop recording
+    } else {
+      setIsRecording(true)
+
+      recordStream = await navigator.mediaDevices.getUserMedia({
+        audio: true,
+        video: {
+          // mediaSource: 'screen',
+          mediaSource: 'window',
+          // mediaSourceId: sourceId,
+
+          chromeMediaSource: 'window',
+          // chromeMediaSourceId: sourceId,
+        },
+      })
+      mediaRecorder = new MediaRecorder(recordStream)
+      mediaRecorder.ondataavailable = (e) => {
+        recordData.push(e.data)
+        console.log(recordData)
+      }
+      mediaRecorder.onstop = (e) => {
+        recordObject = URL.createObjectURL(
+          new Blob(recordData, {
+            type: recordData[0].type,
+          })
+        )
+
+        document.getElementById('videoDisplayer').src = recordObject
+
+        console.log(recordObject)
+      }
+      mediaRecorder.start()
+    }
+  }
 
   async function init() {
     const stream = await getMedia()
@@ -163,7 +255,16 @@ export default function Room() {
     <Container>
       <Back onClick={cleanUp} />
       <div className="record-button-container">
-        <Button onClick={() => {}}>Record</Button>
+        <Button onClick={recordHandler}>Record</Button>
+      </div>
+      <div className="video-2">
+        <video
+          id="videoDisplayer"
+          width="700"
+          height="400"
+          src=""
+          controls
+        ></video>
       </div>
       <div className="video-container">
         <div className="video">
