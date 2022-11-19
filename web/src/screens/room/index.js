@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState, useContext } from 'react'
 // const { ipcRenderer } = window.require('electron')
-// const { desktopCapturer } = window.require('electron')
+const { desktopCapturer } = window.require('electron')
 import { useHistory, useParams } from 'react-router-dom'
 import UserContext from '../../context/user'
 import { getClient } from '../../zomes'
@@ -99,42 +99,44 @@ export default function Room() {
     //       }
     //     }
     //   })
-    if (isRecording) {
-      mediaRecorder.stop()
-      setIsRecording(false)
-      // stop recording
-    } else {
-      setIsRecording(true)
-
-      recordStream = await navigator.mediaDevices.getUserMedia({
-        audio: true,
-        video: {
-          // mediaSource: 'screen',
-          mediaSource: 'window',
-          // mediaSourceId: sourceId,
-
-          chromeMediaSource: 'window',
-          // chromeMediaSourceId: sourceId,
-        },
-      })
-      mediaRecorder = new MediaRecorder(recordStream)
-      mediaRecorder.ondataavailable = (e) => {
-        recordData.push(e.data)
-        console.log(recordData)
-      }
-      mediaRecorder.onstop = (e) => {
-        recordObject = URL.createObjectURL(
-          new Blob(recordData, {
-            type: recordData[0].type,
-          })
-        )
-
-        document.getElementById('videoDisplayer').src = recordObject
-
-        console.log(recordObject)
-      }
-      mediaRecorder.start()
-    }
+    // if (isRecording) {
+    //   mediaRecorder.stop()
+    //   setIsRecording(false)
+    //   // stop recording
+    // } else {
+    //   setIsRecording(true)
+    //   recordStream = await navigator.mediaDevices.getUserMedia({
+    //     audio: true,
+    //     // video: {
+    //     //   mediaSource: 'screen',
+    //     // },
+    //     video: {
+    //       // mandatory: {
+    //       chromeMediaSource: 'desktop',
+    //       chromeMediaSourceId: sourceId,
+    //       minWidth: 1280,
+    //       maxWidth: 1280,
+    //       minHeight: 720,
+    //       maxHeight: 720,
+    //       // },
+    //     },
+    //   })
+    //   mediaRecorder = new MediaRecorder(recordStream)
+    //   mediaRecorder.ondataavailable = (e) => {
+    //     recordData.push(e.data)
+    //     console.log(recordData)
+    //   }
+    //   mediaRecorder.onstop = (e) => {
+    //     recordObject = URL.createObjectURL(
+    //       new Blob(recordData, {
+    //         type: recordData[0].type,
+    //       })
+    //     )
+    //     document.getElementById('videoDisplayer').src = recordObject
+    //     console.log(recordObject)
+    //   }
+    //   mediaRecorder.start()
+    // }
   }
 
   async function init() {

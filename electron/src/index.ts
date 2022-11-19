@@ -3,7 +3,9 @@ import * as path from 'path';
 // import log from 'electron-log'
 import initAgent, { StateSignal, STATUS_EVENT } from 'electron-holochain';
 
-// const { desktopCapturer } = require('electron');
+// const { contextBridge } = require('electron');
+
+const { desktopCapturer } = require('electron');
 
 import {
   devOptions,
@@ -55,32 +57,41 @@ const createMainWindow = (): BrowserWindow => {
   const mainWindow = new BrowserWindow(options);
   mainWindow.webContents.openDevTools();
   // and load the index.html of the app.
-  console.log('HEREE----------------------------');
   if (app.isPackaged) {
     mainWindow.loadFile(MAIN_FILE);
-    console.log('HEREE 58----------------------------');
   } else {
     // development
     mainWindow.loadURL(DEVELOPMENT_UI_URL);
-    console.log('HEREE 62----------------------------');
   }
-  // desktopCapturer
-  //   .getSources({ types: ['window', 'screen'] })
-  //   .then(async (sources) => {
-  //     for (const source of sources) {
-  //       if (source.name === 'Doom') {
-  //         console.log(`source id: ${source.id}`);
-  //         mainWindow.webContents.send('SET_SOURCE', source.id);
-  //         mainWindow.webContents.executeJavaScript(
-  //           `window.source_id ="${source.id}"`
-  //         );
-  //         mainWindow.webContents.executeJavaScript(
-  //           `console.log(window.source_id)`
-  //         );
-  //         return;
-  //       }
-  //     }
-  //   });
+
+  // console.log('through here--------');
+
+  // console.log(contextBridge);
+
+  // contextBridge.exposeInMainWorld('electron', {
+  //   doThing: () => console.log('YES----------------'),
+  // });
+
+  let source_id;
+  desktopCapturer
+    .getSources({ types: ['window', 'screen'] })
+    .then(async (sources) => {
+      for (const source of sources) {
+        if (source.name === 'Doom') {
+          console.log(`source id: ${source.id}`);
+          // mainWindow.webContents.send('SET_SOURCE', source.id);
+          mainWindow.webContents.executeJavaScript(
+            `window.source_id ="${source.id}"`
+          );
+          source_id = source.id;
+          mainWindow.webContents.executeJavaScript(
+            `console.log(window.source_id)`
+          );
+          return;
+        }
+      }
+    });
+
   // Open <a href='' target='_blank'> with default system browser
   mainWindow.webContents.on('new-window', function (event, url) {
     event.preventDefault();
